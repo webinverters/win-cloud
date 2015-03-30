@@ -34,15 +34,15 @@ module.exports = function construct(config) {
    * @param attachments optional
    * @returns {*}
    */
-  m.email = function (recipients, payloadReportObject,attachments) {
+  m.email = function (options) {
     var mailOptions = {
-      to: recipients,
-      from: 'Emmit Labs<no-reply@emmit.ca>',
-      subject: 'Report Mismatch',
+      to: options.recipients,
+      from: options.sender,
+      subject: options.subject,
       text: [
-        payloadReportObject
+        options.payload
       ].join(''),
-      attachment:attachments
+      attachment:options.attachments
     };
     return sendEmail(mailOptions)
   };

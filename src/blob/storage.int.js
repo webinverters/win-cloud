@@ -11,7 +11,7 @@ var StringStream = require('string-stream')
 var Storage = require('./storage');
 
 var ext = Math.floor(Math.random() * 999999);
-var testBucket = 'emmit-test'+ext;
+var testBucket = 'storage-test'+ext;
 describe('storage.int.js', function() {
   this.timeout(10000);
   var s = Storage(testBucket);

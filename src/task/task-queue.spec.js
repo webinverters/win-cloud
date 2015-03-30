@@ -2,7 +2,7 @@
  * Created by justin on 2014-11-29.
  */
 
-var TaskQueue = rrequire('common/task-queue');
+var TaskQueue = require('./task-queue');
 
 describe('task-queue.js', function() {
   var m, mQueue, mEventLog, mLogger, mQ, mIdGen;
@@ -23,19 +23,14 @@ describe('task-queue.js', function() {
       logEvent: sinon.stub()
     };
 
-    mEventLog = sinon.stub().returns(mLogger);
-
     mIdGen = {
       getGUID: function() { return 'uniqueId' }
     };
 
-    m = TaskQueue('testComponentName', mQueue, mEventLog, mIdGen);
+    m = TaskQueue({}, mQueue, mLogger, mIdGen);
   });
 
   describe('TaskQueue()', function() {
-    it('creates an event log', function() {
-      expect(mEventLog).to.have.been.calledWith('testComponentName');
-    });
     it('stores event log on itself', function() {
       expect(m._logger).to.equal(mLogger);
     });

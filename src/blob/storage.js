@@ -2,13 +2,9 @@
  * Created by justin on 2014-11-29.
  */
 
-var p = require('bluebird');
 var
-    _ = require('lodash'),
     StringStream = require('string-stream'),
-batcher = require('./batcher'),
-    fs = require('./file-storage')
-;
+    batcher = require('win-common')().batcher;
 
 module.exports = function (bucketName, provider) {
   var s = {};

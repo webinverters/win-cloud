@@ -17,12 +17,12 @@ module.exports = function construct(config) {
   config = _.defaults(config, {});
 
 
-  m.blob = require('./src/blob/storage')(config);
-  m.eventLogger = require('./src/event/event-logger')(config);
-  m.nosql = {};  // TODO: add a nosql provider.
-  m.notification = require('./src/notification/notification-svc')(config);  // TODO: implement email service.
-  m.queue = require('./src/queue/queue')(config);
-  m.task = require('./src/task/task-queue')(config);
+  m.Storage = require('./src/blob/storage');
+  m.EventLogger = require('./src/event/event-logger');
+  //m.nosql = {};  // TODO: add a nosql provider.
+  // m.notification = require('./src/notification/notification-svc')(config);  // TODO: implement email service.
+  m.Queue = require('./src/queue/queue');
+  m.TaskQueue = require('./src/task/task-queue');
 
   return m;
 };

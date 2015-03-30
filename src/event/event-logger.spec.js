@@ -30,7 +30,7 @@ describe('event-logger', function() {
       ])
     };
 
-    m = EventLogger(mQueue);
+    m = EventLogger({}, mQueue);
   });
   describe('logging an event', function() {
     describe('logger.logEvent(eventLabel, details)', function() {

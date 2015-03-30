@@ -1,17 +1,14 @@
 /**
  * Created by justin on 2014-11-29.
  */
-var p = require('bluebird'),
-  fs = p.promisifyAll(require('fs')),
-    stream = require('stream'),
-    StringStream = require('string-stream')
+var StringStream = require('string-stream')
 ;
 
 /**
  * Created by justin on 2014-11-28.
  */
 
-var Storage = rrequire('common/storage');
+var Storage = require('./storage');
 
 var ext = Math.floor(Math.random() * 999999);
 var testBucket = 'emmit-test'+ext;

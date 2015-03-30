@@ -11,7 +11,7 @@
 
 "use strict";
 
-module.exports = function construct(config) {
+module.exports = function construct(config, queue) {
   var m = {};
   config = config || {};
   config = _.defaults(config, {});

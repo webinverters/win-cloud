@@ -37,6 +37,7 @@
     "sinon-chai": "^2.6.0"
   },
   "dependencies": {
+    "string-stream": "0.0.7",
     "win-common": "0.0.6"
   }
 }

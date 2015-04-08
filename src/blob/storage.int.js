@@ -1,19 +1,9 @@
-/**
- * Created by justin on 2014-11-29.
- */
-var StringStream = require('string-stream')
-;
-
-/**
- * Created by justin on 2014-11-28.
- */
-
+var StringStream = require('string-stream');
 var Storage = require('./storage');
 
 var ext = Math.floor(Math.random() * 999999);
 var testBucket = 'storage-test'+ext;
 describe('storage.int.js', function() {
-  this.timeout(10000);
   var s = Storage(testBucket);
 
   after(function() {
@@ -64,7 +54,22 @@ describe('storage.int.js', function() {
   });
 
   describe('storage.read(key)', function() {
-    it('returns a readable stream of the file', function(done) {
+    //var test = Storage('wem-archive-prod');
+    //it('xxx', function(done) {
+    //  return test.read('2014-12-13T19:12:06.719Z-wem-xx-eddf3cf0-82fb-11e4-af69-a1a694467277.xml')
+    //    .then(function(ss) {
+    //      var str = '';
+    //      ss.on('data', function(data) {
+    //        str += data;
+    //      });
+    //      ss.on('end', function() {
+    //        log("STR", str);
+    //        done();
+    //      });
+    //    }).then(null, done);
+    //});
+
+    xit('returns a readable stream of the file', function(done) {
       var testStream = new StringStream('test text');
       testStream.byteLength = 'test text'.length;  // HACK: looks like a bug in AWS
       return s.read('test.txt')
@@ -109,41 +114,4 @@ describe('storage.int.js', function() {
       }).then(null, done);
     });
   });
-
-  describe('storage.copyResourceToCloudStorageUntilTheResourceMatchesLocalFileLength(localFileName, resKey)',
-    function() {
-      describe('The localFile is open and being written to:', function() {
-        beforeEach(function() {
-          // intentionally running an async operation here and not returning promise to mocha.
-          //openFileAndWriteAHugeString100000CharactersLong('awesome');
-        });
-
-        it('fails unless we call the special method.', function() {
-          //return s.write({
-          //  data: fs.createReadStream('awesome'),
-          //  key: 'awesome'
-          //})
-          //.then(function(key) {
-          //  resourceKey = key;
-          //  // passing the key as the first parameter since then list will only return the resource
-          //  return s.list(key);
-          //})
-          //.then(function(stats) {
-          //  expect(stats[0].Size).to.equal(100000);
-          //})
-        });
-
-        it('still copies the entire file', function() {
-          //return s.copyResourceToCloudStorageUntilTheResourceMatchesLocalFileLength('awesome', 'awesome')
-          //    .then(function(fileSizeInBytes) {
-          //      expect(fileSizeInBytes).to.equal(100000);
-          //      return fs.unlinkAsync('awesome');
-          //    });
-        });
-      });
-    });
 });
-
-function openFileAndWriteAHugeString100000CharactersLong(fileName) {
-  return fs.writeFileAsync(fileName, Array(100001).join('x'));
-}

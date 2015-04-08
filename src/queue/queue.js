@@ -2,17 +2,10 @@
  * Created by justin on 2014-11-28.
  */
 
-var p = require('bluebird');
-var
-    _ = require('lodash')
-;
-
-var sqs = new AWS.SQS();
-
 module.exports = function(queueName, provider) {
   var q = {};
 
-  provider = provider || sqs;  // default to sqs
+  provider = provider || new AWS.SQS();  // default to sqs
   provider.delete = p.promisify(provider.deleteQueue);
   provider.sendMessage= p.promisify(provider.sendMessage);
   provider.createQueue = p.promisify(provider.createQueue);

@@ -1,12 +1,7 @@
-/**
- * Created by justin on 2014-11-28.
- */
-
-var Queue = rrequire('common/queue');
+var Queue = require('./queue');
 var queueExt = Math.floor(Math.random() * 1000000);
 
 describe('queue.integration.js', function() {
-  this.timeout(10000);
   var q, thirdMessageReceiptId;
 
   beforeEach(function() {
@@ -44,6 +39,19 @@ describe('queue.integration.js', function() {
   });
 
   describe('queue.receiveMsg()', function() {
+    //var testQ = Queue('ParserTask-queue-prod');
+    //it('xxx', function() {
+    //  //return testQ.receiveMsg({visibilityTimeout:0}).then(function(msgs) {
+    //  //  expect(msgs.length).to.equal(1);
+    //  //});
+    //
+    //  return testQ.sendMsg({
+    //    body: {test: '3rd msg pushed'}
+    //  }).then(function(id) {
+    //    expect(id).to.be.a('String');
+    //  });
+    //});
+
     it('sets the receiptHandle.', function(done) {
       return q.receiveMsg({visibilityTimeout:0}).then(function(msgs) {
         expect(msgs[0].receiptHandle).to.be.a('String');
@@ -65,7 +73,7 @@ describe('queue.integration.js', function() {
     });
     it('receives null when there is no more messages to receive.', function(done) {
       q.receiveMsg().then(function(msgs) {
-        expect(msgs).to.be.null();
+        expect(msgs).to.be.null;
         done();
       }).then(null, done);
     });
@@ -90,7 +98,7 @@ describe('queue.integration.js', function() {
         return q.receiveMsg({visibilityTimeout:0})
       })
       .then(function(msgs) {
-        expect(msgs).to.be.null();
+        expect(msgs).to.be.null;
         done();
       }).then(null, done);
     });

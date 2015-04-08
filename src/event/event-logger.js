@@ -3,6 +3,8 @@
  * @summary: Logs events to an event queue in the cloud.
  *
  * @description:
+ * This logger is not meant to be general purpose, but rather to log specific events to the cloud
+ * for later analysis.
  *
  * Author: justin
  * Created On: 2015-03-29.
@@ -11,23 +13,31 @@
 
 "use strict";
 
-module.exports = function construct(config, queue) {
+var os = require("os");
+
+
+module.exports = function construct(config, queue, customLogger) {
   var m = {};
   config = config || {};
   config = _.defaults(config, {});
 
+  var logger = customLogger || global.logger || {
+      log: function() {},
+      logError:function(){}
+    };
+
   m.logError = function(eventLabel, info) {
-    console.error(new Date().toISOString()+'-ERROR: '+eventLabel, '\nSTACKTRACE: ', info.stack);
-    return m.logEvent(eventLabel, info);
+    logger.logError({eventLabel: eventLabel, info: info}, eventLabel);
+    return m.log(eventLabel, info, "ERROR");
   };
 
-  m.logEvent = function(eventLabel, info) {
-    console.log(new Date().toISOString()+':'+eventLabel, info);
-
-    delete info.rawData;
+  m.log = function(eventLabel, info, type) {
+    logger.log({eventLabel: eventLabel, info: info}, eventLabel);
 
     var msg = {
       eventLabel: eventLabel,
+      type: type || 'EVENT',
+      host: os.hostname(),
       details: info
     };
     return queue.sendMsg(msg);
@@ -35,7 +45,6 @@ module.exports = function construct(config, queue) {
 
   m.getEvents = function(options) {
     return queue.receiveMsg(options).then(function(msgs) {
-      // todo: convert to events
       return msgs;
     });
   };
@@ -43,6 +52,9 @@ module.exports = function construct(config, queue) {
   m.deleteEvent = function(event) {
     return queue.deleteMsg(event.receiptHandle);
   };
+
+  // endow this logger with all the abilities of the customLogger.
+  var m = _.extend({}, customLogger, m);
 
   return m;
 };

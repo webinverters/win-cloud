@@ -11,10 +11,12 @@
 
 require('win-common')();
 
-module.exports = function construct(config) {
+module.exports = function construct(config, logger) {
   var m = {};
   config = config || {};
-  config = _.defaults(config, {});
+  config = _.defaults(config, {
+    // useGlobals: true
+  });
 
 
   m.Storage = require('./src/blob/storage');
@@ -23,6 +25,8 @@ module.exports = function construct(config) {
   // m.notification = require('./src/notification/notification-svc')(config);  // TODO: implement email service.
   m.Queue = require('./src/queue/queue');
   m.TaskQueue = require('./src/task/task-queue');
+
+  m.eventLogger = m.EventLogger(config.eventLog, m.Queue(config.eventQueueName), logger);
 
   return m;
 };

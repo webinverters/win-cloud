@@ -1,8 +1,8 @@
 module.exports = function(config, Queue, logger, idGenerator) {
   var m = {_taskQueues: {}};
 
-  idGenerator = idGenerator || random;
-  m._logger = logger || {logError: _.noop, logEvent: _.noop};
+  idGenerator = idGenerator || global.random;
+  m._logger = logger || global.logger;
 
   m.createTask = function(taskName, taskDef) {
     if(!m._taskQueues[taskName]) {
@@ -23,7 +23,7 @@ module.exports = function(config, Queue, logger, idGenerator) {
     return m._taskQueues[taskName].sendMsg({body: taskDef})
         .then(function(msgId) {
           taskDef.msgId = msgId;
-          m._logger.logEvent('CREATE_TASK_SUCCESS', taskDef);
+          m._logger.log('CREATE_TASK_SUCCESS', taskDef);
           return taskDef;
         }).then(null, function(err) {
           var newErr = new Error('Queue inaccessible error.');
@@ -46,7 +46,7 @@ module.exports = function(config, Queue, logger, idGenerator) {
       if (!msgs) {
         throw 'QUEUE_EMPTY';
       }
-      m._logger.logEvent('TASK_STARTED', msgs[0]);
+      m._logger.log('TASK_STARTED', msgs[0]);
       return msgs[0];
     },function(err) {
       m._logger.logError("GET_TASK_FAILED", err);
@@ -58,10 +58,11 @@ module.exports = function(config, Queue, logger, idGenerator) {
     if(!m._taskQueues[taskName]) {
       m._taskQueues[taskName] = Queue(taskName+'-queue-'+config.env);
     }
-    return m._taskQueues[taskName].deleteMsg(taskDef.receiptHandle).then(function(msg) {
-      m._logger.logEvent('TASK_COMPLETED', taskDef);
-      return true;
-    });
+    return m._taskQueues[taskName].deleteMsg(taskDef.receiptHandle)
+      .then(function() {
+        m._logger.log('TASK_COMPLETED', taskDef);
+        return true;
+      });
   };
 
   return m;

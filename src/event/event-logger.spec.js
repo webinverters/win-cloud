@@ -10,9 +10,6 @@ describe('if it fails to add the event', function() {
 
 describe('event-logger', function() {
   var m, mQueue;
-  //describe('q.registerEvent(name, dataMapperFunc)', function() {
-  //
-  //});
 
   beforeEach(function() {
     mQueue = {
@@ -33,14 +30,14 @@ describe('event-logger', function() {
     m = EventLogger({}, mQueue);
   });
   describe('logging an event', function() {
-    describe('logger.logEvent(eventLabel, details)', function() {
+    describe('logger.log(eventLabel, details)', function() {
       it('logs the event to the queue', function() {
-        return m.logEvent('SOME_TEST_LABEL', {}).then(function(id) {
+        return m.log('SOME_TEST_LABEL', {}).then(function(id) {
           expect(id).to.equal('msgid');
-          expect(mQueue.sendMsg).to.have.been.calledWith({
+          expect(mQueue.sendMsg).to.have.been.calledWith(sinon.match({
             eventLabel: 'SOME_TEST_LABEL',
             details: {}
-          });
+          }));
         });
       });
       describe('error sending or connecting to queue', function() {
@@ -69,23 +66,20 @@ describe('event-logger', function() {
       it('logs the event to the queue', function() {
         return m.logError('SOME_TEST_LABEL', {}).then(function(id) {
           expect(id).to.equal('msgid');
-          expect(mQueue.sendMsg).to.have.been.calledWith({
+          expect(mQueue.sendMsg).to.have.been.calledWith(sinon.match({
             eventLabel: 'SOME_TEST_LABEL',
             details: {}
-          });
+          }));
         });
       });
-      describe('error sending or connecting to queue', function() {
-        xit('logs error to error console.',function(){
-
+      xdescribe('error sending or connecting to queue', function() {
+        it('logs error to error console.',function(){
           return m.logError('SOME_TEST_LABEL', {}).then(function(id) {
 
-          })
-
+          });
           //expect(console.log).to.have.been.called
-
         });
-        //it('retries every minute');
+        it('retries every minute');
       });
     });
   });

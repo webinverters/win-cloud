@@ -161,4 +161,64 @@ describe('task-runner', function () {
       });
     });
   });
+
+  describe('Runs with a cloud task', function() {
+    var taskQ;
+    beforeEach(function() {
+      taskQ = require('./task-queue')({}, null, mLogger, global.random);
+      config = {
+        loop: false,
+        peekIntervalMS: 1000, // change to 1 second for tests.
+        taskList: [
+          task.taskify('Make-1000-ItemsTask', function() {
+            var result = [];
+            _.each(_.range(1000), function(i) {
+              result.push(i);
+            });
+            taskResults.push(result);
+          }),
+          task.taskify('QueuedTask1', function(taskDef) {
+            var result = [];
+            _.each(_.range(taskDef.itemCount), function(i) {
+              result.push(i);
+            });
+            // The taskQ is not FIFO by default (due to SQS not being FIFO)
+            // therefore we add sequence number (seq) for this test...
+            // This could be fixed in the future by adding "seq" automatically in the
+            // TaskQueue and ensuring FIFO in there.
+            taskResults[taskDef.seq]= result;
+          }, 'QueuedTask')
+        ]
+      };
+      m = ModuleUnderTest(config, mLogger);
+    });
+    it('runs both queued and non queued tasks.', function() {
+      return taskQ.createTask('QueuedTask1', {itemCount:50, seq: 1})
+        .then(function() {
+          return m.run();
+        })
+        .then(function() {
+          expect(taskResults.length).to.equal(2);
+          expect(taskResults[0].length).to.equal(1000);
+          expect(taskResults[1].length).to.equal(50);
+        });
+    });
+    it('runs all queued tasks by default', function() {
+      return p.join(
+        taskQ.createTask('QueuedTask1', {itemCount:50, seq: 1}),
+        taskQ.createTask('QueuedTask1', {itemCount:60, seq: 2}),
+        taskQ.createTask('QueuedTask1', {itemCount:70, seq: 3})
+      )
+      .then(function() {
+        return m.run();
+      })
+      .then(function() {
+        expect(taskResults.length).to.equal(4);
+        expect(taskResults[0].length).to.equal(1000);
+        expect(taskResults[1].length).to.equal(50);
+        expect(taskResults[2].length).to.equal(60);
+        expect(taskResults[3].length).to.equal(70);
+      });
+    });
+  });
 });

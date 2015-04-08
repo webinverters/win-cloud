@@ -11,7 +11,6 @@
 
 "use strict";
 
-var CloudQueue = require('../queue/queue');
 var TaskQueue = require('./task-queue');
 
 /**
@@ -100,7 +99,7 @@ module.exports = function construct(config, logger) {
       return require('./queued-task')({
         taskName: taskName,
         action: action
-      }, logger, TaskQueue(taskName, CloudQueue, logger, global.random))
+      }, logger, TaskQueue({}, null, logger, global.random))
   };
 
   return m;

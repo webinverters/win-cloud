@@ -1,6 +1,8 @@
 module.exports = function(config, Queue, logger, idGenerator) {
   var m = {_taskQueues: {}};
 
+  Queue = Queue || require('../queue/queue');
+
   idGenerator = idGenerator || global.random;
   m._logger = logger || global.logger;
 
@@ -41,6 +43,8 @@ module.exports = function(config, Queue, logger, idGenerator) {
     if(!m._taskQueues[taskName]) {
       m._taskQueues[taskName] = Queue(taskName+'-queue-'+config.env);
     }
+
+    // TODO: add option and support for guaranteed FIFO, since SQS doesnt support FIFO.
 
     return m._taskQueues[taskName].receiveMsg().then(function(msgs) {
       if (!msgs) {

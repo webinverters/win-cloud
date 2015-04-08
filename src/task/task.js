@@ -29,7 +29,7 @@ module.exports = function construct(config, logger) {
 
   function runNext(state) {
     return p.resolve().then(function() {
-      p.resolve(config.action(state))
+      return p.resolve(config.action(state))
         .then(function(result) {
           if (config.loopUntilDone) {
             if (result == 'DONE') {
@@ -38,7 +38,7 @@ module.exports = function construct(config, logger) {
             return runNext(result);
           }
           return result;
-        })
+        });
     })
     .then(null, function(err) {
       logger.logError('TASK_ERROR', {taskName: config.taskName, err: err});

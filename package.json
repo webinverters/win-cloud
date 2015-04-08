@@ -1,5 +1,5 @@
 {
-  "name": "lib-base",
+  "name": "win-cloud",
   "version": "0.0.5",
   "description": "",
   "main": "index.js",
@@ -10,14 +10,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:webinverters/lib-base.git"
+    "url": "git@github.com:webinverters/wincloud.git"
   },
   "author": "Justin Mooser",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/webinverters/lib-base/issues"
+    "url": "https://github.com/webinverters/win-cloud/issues"
   },
-  "homepage": "https://github.com/webinverters/lib-base",
+  "homepage": "https://github.com/webinverters/win-cloud",
   "devDependencies": {
     "chai": "^1.x.x",
     "chai-as-promised": "^4.1.1",

@@ -20,7 +20,7 @@ describe('task-queue.js', function() {
 
     mLogger = {
       logError: sinon.stub(),
-      logEvent: sinon.stub()
+      log: sinon.stub()
     };
 
     mIdGen = {
@@ -63,7 +63,7 @@ describe('task-queue.js', function() {
 
     it('logs a task creation success event.', function() {
       return m.createTask('testTask', fakeTaskData).then(function(task) {
-        expect(mLogger.logEvent).to.have.been.calledWith(
+        expect(mLogger.log).to.have.been.calledWith(
             'CREATE_TASK_SUCCESS', task);
       });
     });
@@ -101,7 +101,7 @@ describe('task-queue.js', function() {
     });
     it('logs a TASK_STARTED event.', function() {
       return m.pullNextTask('testTask').then(function(task) {
-        expect(mLogger.logEvent).to.have.been.calledWith('TASK_STARTED', task);
+        expect(mLogger.log).to.have.been.calledWith('TASK_STARTED', task);
       });
     });
   });
@@ -120,7 +120,7 @@ describe('task-queue.js', function() {
     it('logs a TASK_COMPLETED event.', function() {
       return m.pullNextTask('testTask').then(function(task) {
         return m.completeTask('testTask',task).then(function() {
-          expect(mLogger.logEvent).to.have.been.calledWith('TASK_COMPLETED', task);
+          expect(mLogger.log).to.have.been.calledWith('TASK_COMPLETED', task);
         });
       });
     });

@@ -1,4 +1,4 @@
-require('win-common')({projectRoot: __dirname, useTestGlobals: true });
+require('win-common')({useTestGlobals: true });
 
 global.AWS = require('aws-sdk');
 AWS.config.update({region: 'us-east-1'});

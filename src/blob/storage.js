@@ -4,7 +4,7 @@
 
 var
     StringStream = require('string-stream'),
-    batcher = require('win-common')({projectRoot:__dirname}).batcher;
+    batcher = require('win-common')().batcher;
 
 module.exports = function (bucketName, provider) {
   var s = {};

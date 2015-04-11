@@ -51,24 +51,25 @@ describe('storage.int.js', function() {
           })
           .then(null, done);
     });
+
+    it('writes a blob to storage', function() {
+      return s.write({
+        key: 'test1',
+        data: 'here is a blob of data'
+      })
+      .then(function(key) {
+        expect(key).to.equal('test1');
+      })
+      .then(function(data) {
+        return s.readString('test1');
+      })
+      .then(function(blob) {
+        expect(blob).to.equal('here is a blob of data');
+      });
+    });
   });
 
   describe('storage.read(key)', function() {
-    //var test = Storage('wem-archive-prod');
-    //it('xxx', function(done) {
-    //  return test.read('2014-12-13T19:12:06.719Z-wem-xx-eddf3cf0-82fb-11e4-af69-a1a694467277.xml')
-    //    .then(function(ss) {
-    //      var str = '';
-    //      ss.on('data', function(data) {
-    //        str += data;
-    //      });
-    //      ss.on('end', function() {
-    //        log("STR", str);
-    //        done();
-    //      });
-    //    }).then(null, done);
-    //});
-
     xit('returns a readable stream of the file', function(done) {
       var testStream = new StringStream('test text');
       testStream.byteLength = 'test text'.length;  // HACK: looks like a bug in AWS
@@ -112,6 +113,29 @@ describe('storage.int.js', function() {
         expect(fileNames.length).to.equal(1);
         done();
       }).then(null, done);
+    });
+  });
+
+  describe('storage.writeBlobs(blobs)', function() {
+    it('writes all blobs specified in array to bucket.', function() {
+      var testBlobs = [
+        {
+          key: 'blob1',
+          data: 'blob1-data'
+        },
+        {
+          key: 'blob2',
+          data: 'blob2-data'
+        }
+      ];
+      return s.writeBlobs(testBlobs)
+      .then(function(keys) {
+        return s.readBlobs(keys);
+      })
+      .then(function(blobs) {
+        expect(blobs.length).to.equal(2);
+        expect(blobs).to.deep.equal(testBlobs);
+      });
     });
   });
 });

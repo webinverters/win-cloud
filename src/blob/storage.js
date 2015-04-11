@@ -135,6 +135,26 @@ module.exports = function (bucketName, provider) {
     });
   };
 
+  s.writeBlobs = function(blobs) {
+    return p.map(blobs, function(blob) {
+      return s.write(blob);
+    });
+  };
+
+  s.readBlobs = function(blobs) {
+    return p.map(blobs, function(key) {
+      return s.readString(key);
+    })
+    .then(function(data) {
+      return _.map(blobs, function(key, idx) {
+        return {
+          key: key,
+          data: data[idx]
+        };
+      });
+    });
+  };
+
   function listAllObjects(prefix, marker) {
     var allKeys = [], deferred = p.defer();
 

@@ -15,7 +15,8 @@ module.exports = function construct(config, logger) {
   var m = {};
   config = config || {};
   config = _.defaults(config, {
-    useGlobals: true
+    useGlobals: true,
+    eventQueueName: 'default-event-queue'
   });
 
 
@@ -28,7 +29,6 @@ module.exports = function construct(config, logger) {
   m.TaskRunner = require('./src/task/task-runner');
 
   m.eventLogger = m.EventLogger(config.eventLog, m.Queue(config.eventQueueName), logger);
-
 
   if (config.useGlobals) {
     global.wincloud = _.extend({}, m);

@@ -106,9 +106,15 @@ module.exports = function (bucketName, provider) {
     });
   };
 
-  s.list = function (prefix) {
+  /**
+   *
+   * @param prefix Only download files that start with this prefix
+   * @param marker Only download files after this file (the same thing as s3 api marker.)
+   * @returns {*}
+   */
+  s.list = function (prefix, marker) {
     return s.ready().then(function () {
-      return listAllObjects(prefix);
+      return listAllObjects(prefix, marker);
     });
   };
 
@@ -129,34 +135,7 @@ module.exports = function (bucketName, provider) {
     });
   };
 
-  s.copyResourceToCloudStorageUntilTheResourceMatchesLocalFileLength = function(fileName, dstResourceKey) {
-    var resourceKey = null;
-    return s.write({
-      data: fs.createReadStream(fileName),
-      key: dstResourceKey
-    })
-    .then(function(key) {
-      resourceKey = key;
-      // passing the key as the first parameter since then list will only return the resource
-      return s.list(key);
-    })
-    .then(function(resources) {
-      return fs.statAsync(fileName)
-          .then(function(localFileDetails) {
-            return {localFileDetails: localFileDetails, cloudResource: resources[0]};
-          })
-    })
-    .then(function(the) {
-      if (the.localFileDetails.size != the.cloudResource.Size) {
-        // it must not have copied the entire file to cloud storage, retry:
-        return s.copyResourceToCloudStorageUntilTheResourceMatchesLocalFileLength(fileName, dstResourceKey);
-      }
-      return the.localFileDetails.size;
-    });
-  };
-
-
-  function listAllObjects(prefix) {
+  function listAllObjects(prefix, marker) {
     var allKeys = [], deferred = p.defer();
 
     function listAllKeys(marker, prefix) {
@@ -173,7 +152,7 @@ module.exports = function (bucketName, provider) {
       });
     }
 
-    listAllKeys(null, prefix);
+    listAllKeys(marker, prefix);
     return deferred.promise;
   }
 

@@ -32,20 +32,20 @@ module.exports = function (bucketName, provider) {
     return s.ready().then(function () {
       return s.list()
     })
-      .then(function (allObjects) {
-        log('Deleting:', allObjects.length, 'objects from bucket:', bucketName);
-        return p.all(batcher.chunk(allObjects, 1000, function (chunk) {
-              return provider.deleteObjects({
-                Delete: {
-                  Objects: _.map(chunk, function (x) {
-                    return {Key: x.Key}
-                  })
-                }
-              });
-            }
-          )
+    .then(function (allObjects) {
+      log('Deleting:', allObjects.length, 'objects from bucket:', bucketName);
+      return p.all(batcher.chunk(allObjects, 1000, function (chunk) {
+            return provider.deleteObjects({
+              Delete: {
+                Objects: _.map(chunk, function (x) {
+                  return {Key: x.Key}
+                })
+              }
+            });
+          }
         )
-      })
+      )
+    })
   };
 
   s.ready = function () {
@@ -113,11 +113,12 @@ module.exports = function (bucketName, provider) {
    *
    * @param prefix Only download files that start with this prefix
    * @param marker Only download files after this file (the same thing as s3 api marker.)
+   * @param maxCount Will only return up to this amount (it could exceed it by up to 999 at maximum, but no more.)
    * @returns {*}
    */
-  s.list = function (prefix, marker) {
+  s.list = function (prefix, marker, maxCount) {
     return s.ready().then(function () {
-      return listAllObjects(prefix, marker);
+      return listAllObjects(prefix, marker, maxCount);
     });
   };
 
@@ -158,8 +159,9 @@ module.exports = function (bucketName, provider) {
     });
   };
 
-  function listAllObjects(prefix, marker) {
+  function listAllObjects(prefix, marker, maxCount) {
     var allKeys = [], deferred = p.defer();
+    maxCount = maxCount || 100000;
 
     function listAllKeys(marker, prefix) {
       provider.listObjects({Prefix: prefix, Marker: marker}, function (err, data) {
@@ -168,7 +170,7 @@ module.exports = function (bucketName, provider) {
           return;
         }
         allKeys.push(data.Contents);
-        if (data.IsTruncated)
+        if (data.IsTruncated && _.flatten(allKeys).length < maxCount)
           listAllKeys(data.Contents.slice(-1)[0].Key, prefix);
         else
           deferred.resolve(_.flatten(allKeys));

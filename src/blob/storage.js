@@ -21,28 +21,31 @@ module.exports = function (bucketName, provider) {
   //provider.getObject = p.promisify(provider.getObject);
 
   s.destroy = function () {
-    return s.ready().then(function () {
-      return s.list()
-    })
-    .then(function (allObjects) {
-      console.log('Destroying:', allObjects.length, 'objects from bucket:', bucketName);
-      return p.all(batcher.chunk(allObjects, 1000, function (chunk) {
-                return provider.deleteObjects({
-                  Delete: {
-                    Objects: _.map(chunk, function (x) {
-                      return {Key: x.Key}
-                    })
-                  }
-                });
-              }
-          )
-      )
-    })
-    .then(function (test) {
+    s.emptyBucket().then(function (test) {
       return provider.deleteBucket().then(function () {
         s._bucketName = null;
       });
     });
+  };
+
+  s.emptyBucket = function() {
+    return s.ready().then(function () {
+      return s.list()
+    })
+      .then(function (allObjects) {
+        log('Deleting:', allObjects.length, 'objects from bucket:', bucketName);
+        return p.all(batcher.chunk(allObjects, 1000, function (chunk) {
+              return provider.deleteObjects({
+                Delete: {
+                  Objects: _.map(chunk, function (x) {
+                    return {Key: x.Key}
+                  })
+                }
+              });
+            }
+          )
+        )
+      })
   };
 
   s.ready = function () {

@@ -32,7 +32,7 @@ module.exports = function construct(config, logger, taskQ) {
   var runNextTask = function() {
     var taskDef = null;
     return taskQ.pullNextTask(config.taskName)
-      .then(function(tdef, taskQ) {
+      .then(function(tdef) {
         debug('pulled task from queue:', tdef.taskId, tdef.transactionId);
         taskDef = tdef;
         return config.doTask(tdef, taskQ);

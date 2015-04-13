@@ -40,6 +40,7 @@ module.exports = function(config, Queue, logger, idGenerator) {
   };
 
   m.pullNextTask = function(taskName) {
+    debug('pulling from task queue:', taskName);
     if(!m._taskQueues[taskName]) {
       m._taskQueues[taskName] = Queue(taskName+'-queue-'+config.env);
     }

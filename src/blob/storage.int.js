@@ -101,7 +101,7 @@ describe('storage.int.js', function() {
   describe('storage.list()', function() {
     it('lists all the files in the bucket', function(done) {
       s.list().then(function(fileNames) {
-        expect(fileNames.length).to.equal(2);
+        expect(fileNames.length).to.equal(3);
         done();
       }).then(null, done);
     });
@@ -110,7 +110,7 @@ describe('storage.int.js', function() {
   describe('storage.list(prefix)', function() {
     it('lists only those that match the prefix', function(done) {
       s.list('test').then(function(fileNames) {
-        expect(fileNames.length).to.equal(1);
+        expect(fileNames.length).to.equal(2);
         done();
       }).then(null, done);
     });

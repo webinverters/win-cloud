@@ -56,7 +56,7 @@ module.exports = function (bucketName, provider) {
       return s._async;
     }
     else {
-      console.log('creating bucket...', bucketName);
+      log('Initializing bucket:', bucketName);
       return s._async = provider.createBucket().then(function (data) {
         s._bucketName = bucketName;
         s._async = null;

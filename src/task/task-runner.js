@@ -89,6 +89,7 @@ module.exports = function construct(config, logger) {
   };
 
   m.taskify = function(taskName, action, queued) {
+    //params = params || {};
     if (!queued)
       return require('./task')(
         {
@@ -99,7 +100,7 @@ module.exports = function construct(config, logger) {
       return require('./queued-task')({
         taskName: taskName,
         action: action
-      }, logger, TaskQueue({}, null, logger, global.random))
+      }, logger, TaskQueue(config, null, logger, global.random))
   };
 
   return m;

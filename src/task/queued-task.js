@@ -31,7 +31,6 @@ module.exports = function construct(config, logger, taskQ) {
 
   var runNextTask = function() {
     var taskDef = null;
-    debug('pulling from task queue:', config.taskName);
     return taskQ.pullNextTask(config.taskName)
       .then(function(tdef, taskQ) {
         debug('pulled task from queue:', tdef);

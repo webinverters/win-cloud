@@ -220,5 +220,19 @@ describe('task-runner', function () {
         expect(taskResults[3].length).to.equal(70);
       });
     });
+
+    it('does the same even with a schedule.', function() {
+      return p.join(
+        taskQ.createTask('QueuedTask1', {itemCount:50, seq: 1})
+      )
+      .then(function() {
+        return m.run({QueuedTask1: {intervalMS: 1000}});
+      })
+      .then(function() { return p.delay(2000); })// add enough delay to ensure the intervalMS is hit.
+      .then(function() {
+        expect(taskResults[0].length).to.equal(1000);
+        expect(taskResults[1].length).to.equal(50);
+      });
+    });
   });
 });

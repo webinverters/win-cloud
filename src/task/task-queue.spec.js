@@ -120,7 +120,7 @@ describe('task-queue.js', function() {
     it('logs a TASK_COMPLETED event.', function() {
       return m.pullNextTask('testTask').then(function(task) {
         return m.completeTask('testTask',task).then(function() {
-          expect(mLogger.log).to.have.been.calledWith('TASK_COMPLETED', task);
+          expect(mLogger.log).to.have.been.calledWith('TASK_COMPLETED', {transactionId:task.transactionId, taskId: task.taskId});
         });
       });
     });

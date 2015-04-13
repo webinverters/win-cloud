@@ -27,7 +27,7 @@ module.exports = function construct(config, logger) {
   config = _.defaults(config, {
     loop: true,
     taskList: [],
-    taskSchedule: {},
+    taskSchedule: null,
     peekIntervalMS: 5*1000,
     delayBetweenTasksMS: 0,
     concurrency: 1,
@@ -56,6 +56,7 @@ module.exports = function construct(config, logger) {
     var currIdx = 0,
       resolver = p.defer();
 
+    schedule = schedule || config.taskSchedule;
     if (schedule) applyScheduleDefaults(schedule);
 
     var interval = setInterval(runner, config.peekIntervalMS);
@@ -71,14 +72,17 @@ module.exports = function construct(config, logger) {
         }
 
         if (schedule) {
+          log('schedule detected');
           m.runTasksOnSchedule(schedule, config.taskList);
         }
 
         var task = config.taskList[currIdx % config.taskList.length];
 
         // ensure it is not already running and it is not a scheduled task.
-        if (!task.isRunning() &&
-          (!schedule || (schedule && !schedule[task.name]))) {
+        if (schedule && schedule[task.name]) {
+          currIdx += 1;
+        }
+        else if (!task.isRunning()) {
           return m.runTask(task)
             .then(function() {
               currIdx++;  // move on to the next task once this one is completed or errored.
@@ -103,18 +107,19 @@ module.exports = function construct(config, logger) {
    */
   m.runTasksOnSchedule = function(schedule, tasks) {
     _.each(tasks, function(task) {
-      var sched = null;
+      var sched;
       if (sched = schedule[task.name]) {
         if (sched.intervalMS) {
           if (task.lastRanOn) {
-            var tot = time.getCurrentTime() - task.lastRanOn;
+            var tot = new Date().getTime() - task.lastRanOn;
             if (tot >= sched.intervalMS) {
-              if (!task.isRunning() || task.runningCount == 0 || task.runningCount < sched.concurrency) {
+              if (!task.isRunning() &&
+                (!task.runningCount || task.runningCount < sched.concurrency)) {
                 m.runTask(task);
               }
             }
           }
-          task.lastRanOn = time.getCurrentTime();
+          task.lastRanOn = new Date().getTime();
         }
       }
     });

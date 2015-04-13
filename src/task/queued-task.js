@@ -33,7 +33,7 @@ module.exports = function construct(config, logger, taskQ) {
     var taskDef = null;
     return taskQ.pullNextTask(config.taskName)
       .then(function(tdef, taskQ) {
-        debug('pulled task from queue:', tdef);
+        debug('pulled task from queue:', tdef.taskId, tdef.transactionId);
         taskDef = tdef;
         return config.doTask(tdef);
       })
@@ -41,12 +41,13 @@ module.exports = function construct(config, logger, taskQ) {
         return taskQ.completeTask(config.taskName, tresult);
       })
       .catch(function(err){
-        log('Queued Task Caught Error...');
-        logError(err);
         if ((_.isObject(err) && err.message=='QUEUE_EMPTY') ||
           err=='QUEUE_EMPTY') {
           return 'DONE';
         }
+
+        log('Queued Task Caught Error...');
+        logError(err);
 
         taskDef = taskDef || {};
         taskDef.err = err;

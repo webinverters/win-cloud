@@ -66,7 +66,7 @@ module.exports = function(config, Queue, logger, idGenerator) {
     }
     return m._taskQueues[taskName].deleteMsg(taskDef.receiptHandle)
       .then(function() {
-        m._logger.log('TASK_COMPLETED', taskDef);
+        m._logger.log('TASK_COMPLETED', {transactionId: taskDef.transactionId, taskId: taskDef.taskId});
         return true;
       });
   };

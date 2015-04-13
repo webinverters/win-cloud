@@ -26,6 +26,7 @@ module.exports = function construct(config, logger) {
 
   logger = logger || global.logger;
   m.logger = logger;
+  m.name = config.taskName;
 
   function runNext(state) {
     return p.resolve().then(function() {

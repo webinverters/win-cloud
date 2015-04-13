@@ -40,10 +40,11 @@ module.exports = function(config, Queue, logger, idGenerator) {
   };
 
   m.pullNextTask = function(taskName) {
-    debug('pulling from task queue:', taskName);
     if(!m._taskQueues[taskName]) {
+      log('Initializing task queue:',taskName+'-queue-'+config.env);
       m._taskQueues[taskName] = Queue(taskName+'-queue-'+config.env);
     }
+    debug('pulling from task queue:',taskName+'-queue-'+config.env);
 
     // TODO: add option and support for guaranteed FIFO, since SQS doesnt support FIFO.
 

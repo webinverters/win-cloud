@@ -35,7 +35,7 @@ module.exports = function construct(config, logger, taskQ) {
       .then(function(tdef, taskQ) {
         debug('pulled task from queue:', tdef.taskId, tdef.transactionId);
         taskDef = tdef;
-        return config.doTask(tdef);
+        return config.doTask(tdef, taskQ);
       })
       .then(function(tresult) {
         return taskQ.completeTask(config.taskName, tresult);
@@ -43,6 +43,7 @@ module.exports = function construct(config, logger, taskQ) {
       .catch(function(err){
         if ((_.isObject(err) && err.message=='QUEUE_EMPTY') ||
           err=='QUEUE_EMPTY') {
+          log('Task Queue Empty');
           return 'DONE';
         }
 

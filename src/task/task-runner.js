@@ -47,6 +47,7 @@ module.exports = function construct(config, logger) {
     _.each(schedule, function(taskSchedule, key) {
       schedule[key] = _.defaults(taskSchedule, scheduleDefaults);
     });
+    log('Using Task Schedule:', schedule);
   }
 
   /**
@@ -72,7 +73,6 @@ module.exports = function construct(config, logger) {
         }
 
         if (schedule) {
-          log('schedule detected');
           m.runTasksOnSchedule(schedule, config.taskList);
         }
 

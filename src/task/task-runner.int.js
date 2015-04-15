@@ -289,7 +289,7 @@ describe('task-runner', function () {
         'Specific-Time-Task': {
           specificTimes: [
             {
-              time: moment().tz("europe/london").add(3,"second").unix()*1000, // 3 seconds from now
+              dateTime: moment().tz("europe/london").add(3,"second").unix()*1000, // 3 seconds from now
               timezone:"europe/london"
             }
           ]
@@ -307,7 +307,7 @@ describe('task-runner', function () {
           specificTimes: [
             {
 
-              time: (moment().tz("america/toronto").add(3,"second").unix()*1000), // 3 seconds from now
+              dateTime: (moment().tz("america/toronto").add(3,"second").unix()*1000), // 3 seconds from now
               timezone:"america/toronto"
             }
           ]

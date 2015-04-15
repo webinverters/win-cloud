@@ -139,11 +139,19 @@ module.exports = function construct(config, logger) {
    * @returns {*} a promise.
    */
   m.runNextScheduleTask=function(schedule,task){
-    var currentTime=moment().unix();
+    var currentTime=moment().tz("UTC").unix();
 
     _.forEach(schedule.specificTimes,function(scheduleTask){
       scheduleTask.timezone = scheduleTask.timezone || 'UTC';
-      var scheduleTaskTime=moment.tz(scheduleTask.time,scheduleTask.timezone).unix();
+      var scheduleTaskTime;
+
+      if(scheduleTask.time){
+        console.log("here")
+        scheduleTaskTime= m.getDate(scheduleTask.time,scheduleTask.timezone)
+      }else{
+        scheduleTaskTime=moment.tz(scheduleTask.dateTime,scheduleTask.timezone).unix();
+      }
+
       if(!task[scheduleTaskTime] && currentTime >= scheduleTaskTime &&
           // ensure we aren't too far past the scheduled task time.
         ((currentTime - scheduleTaskTime) < (config.peekIntervalMS * 2)) // multiply peek by 2 incase of solar flares :)
@@ -165,6 +173,15 @@ module.exports = function construct(config, logger) {
     .finally(function() {
       task.runningCount -= 1;
     });
+  };
+
+  m.getDate=function (time,timezone){
+    var temp=time.split(":");
+    var hour=parseInt(temp[0]);
+    var minute=parseInt(temp[1]);
+    var second=parseInt(temp[2]);
+
+    return moment().tz(timezone).startOf("day").hour(hour).minute(minute).second(second).unix();
   };
 
   /**

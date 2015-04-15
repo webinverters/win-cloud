@@ -15,6 +15,7 @@ describe('task-runner', function () {
       logError: sinon.stub()
     };
 
+    m=ModuleUnderTest(config,mLogger);
   });
 
 
@@ -52,6 +53,26 @@ describe('task-runner', function () {
   })
 
 
+  describe("m.getDate(time,timezone)",function(){
+    it('returns the correct unix timestamp',function(){
+      var result=moment().tz("UTC").startOf("day").hour(12).unix();
+      expect(m.getDate("12:00:00","utc")).to.equal(result)
+    });
 
+    it('returns the correct unix timestamp',function(){
+      var result=moment().tz("UTC").startOf("day").hour(15).minute(12).second(14).unix();
+      expect(m.getDate("15:12:14","utc")).to.equal(result)
+    })
+
+    it('returns the correct unix timestamp',function(){
+      var result=moment().tz("UTC").startOf("day").hour(7).minute(2).second(0).unix();
+      expect(m.getDate("7:02:00","utc")).to.equal(result)
+    });
+
+    it('returns the correct unix timestamp',function(){
+      var result=moment().tz("EST").startOf("day").unix();
+      expect(m.getDate("0:00:00","EST")).to.equal(result)
+    })
+  })
 
 });

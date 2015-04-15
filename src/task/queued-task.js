@@ -50,7 +50,7 @@ module.exports = function construct(config, logger, taskQ) {
         logError(err);
 
         taskDef = taskDef || {};
-        taskDef.err = err;
+        taskDef.err = _.isObject(err) ? JSON.stringify(err) : err;
 
         return m.logger.logError("TASK_FAILED", taskDef)
           .then(function() {

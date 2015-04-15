@@ -27,6 +27,9 @@ module.exports = function construct(config, queue, customLogger) {
     };
 
   m.logError = function(eventLabel, info) {
+    info = _.cloneDeep(info); // take a copy incase another method outside of this edits the info
+    // after this call is invoked since it is rare that a client will actually wait for the promise
+    // to fulfill.
     logger.logError({eventLabel: eventLabel, info: info}, eventLabel);
     var msg = {
       eventLabel: eventLabel,
@@ -38,6 +41,9 @@ module.exports = function construct(config, queue, customLogger) {
   };
 
   m.log = function(eventLabel, info, type) {
+    info = _.cloneDeep(info); // take a copy incase another method outside of this edits the info
+    // after this call is invoked since it is rare that a client will actually wait for the promise
+    // to fulfill.
     logger.log({eventLabel: eventLabel, info: info}, eventLabel);
 
     var msg = {

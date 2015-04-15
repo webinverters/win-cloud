@@ -234,5 +234,94 @@ describe('task-runner', function () {
         expect(taskResults[1].length).to.equal(50);
       });
     });
+
+    it('runs with a specific time schdedule', function() {
+      return p.join(
+        taskQ.createTask('QueuedTask1', {itemCount:50, seq: 1})
+      )
+      .then(function() {
+        return m.run({QueuedTask1: {intervalMS: 1000}});
+      })
+      .then(function() { return p.delay(2000); })// add enough delay to ensure the intervalMS is hit.
+      .then(function() {
+        expect(taskResults[0].length).to.equal(1000);
+        expect(taskResults[1].length).to.equal(50);
+      });
+    });
+  });
+
+
+  describe('schedule.specificTimes', function() {
+    beforeEach(function () {
+      taskResults = [];
+      config = {
+        loop: true,
+        peekIntervalMS: 1000, // change to 1 second for tests.
+        taskList: [
+          task.taskify('Specific-Time-Task', function() {
+            var result = [];
+            _.each(_.range(1000), function(i) {
+              result.push(i);
+            });
+            taskResults.push(result);
+          })
+          ,
+          task.taskify('Task-2', function() {
+            var result = [];
+            _.each(_.range(2000), function(i) {
+              result.push(i);
+            });
+
+            taskResults.push(result);
+          })
+        ]
+      };
+
+      m = ModuleUnderTest(config, mLogger);
+    });
+
+    afterEach(function() {
+      m.stopAll();  // clean up the task loop interval...
+    });
+
+    it('runs the task on the specific time using default timezone (UTC). ', function() {
+      m.run({
+        'Specific-Time-Task': {
+          specificTimes: [
+            {
+              time: moment().tz("europe/london").add(3,"second").unix()*1000, // 3 seconds from now
+              timezone:"europe/london"
+            }
+          ]
+        }
+      });
+      return p.delay(5000)
+      .then(function() {
+        expect(taskResults[0].length).to.equal(2000);
+        expect(taskResults[1].length).to.equal(1000);
+      })
+    });
+    xit('runs the task on the specific time using the specified timezone', function() {
+      m.run({
+        'Specific-Time-Task': {
+          specificTimes: [
+            {
+
+              time: (moment().tz("america/toronto").add(3,"second").unix()*1000), // 3 seconds from now
+              timezone:"america/toronto"
+            }
+          ]
+        }
+      });
+      return p.delay(5000)
+        .then(function() {
+          expect(taskResults[0].length).to.equal(2000);
+          expect(taskResults[1].length).to.equal(1000);
+        })
+    });
   });
 });
+
+
+
+

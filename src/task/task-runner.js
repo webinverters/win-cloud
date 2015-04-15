@@ -38,9 +38,11 @@ module.exports = function construct(config, logger) {
 
   var scheduleDefaults = {
       intervalMS: null,
+      concurrency: 1,
+      period: null
+      // HERE IS AN EXAMPLE OF OTHER TYPES OF SCHEDULES WHICH HAVE NO DEFAULTS:
       //period: '',  // day, week, month, year
       //specificTimes: [{time: '', datetime: '', timezone: ''}],
-      concurrency: 1
     };
 
   function applyScheduleDefaults(schedule) {
@@ -69,9 +71,11 @@ module.exports = function construct(config, logger) {
         // then bail out when done tasklist.
         if (!config.loop && currIdx >= config.taskList.length) {
           clearInterval(interval);
+          log('Finished tasks and exiting...');
           return resolver.resolve('DONE');
         }
 
+        //if task has a schedule, set task to run side by side?
         if (schedule) {
           m.runTasksOnSchedule(schedule, config.taskList);
         }
@@ -121,8 +125,43 @@ module.exports = function construct(config, logger) {
           }
           task.lastRanOn = new Date().getTime();
         }
+        if (sched.specificTimes) {
+          m.runNextScheduleTask(sched,task)
+        }
       }
     });
+  };
+
+  /**
+   * looks at schedule runs the task depending on the time.
+   * @param schedule
+   * @param task
+   * @returns {*} a promise.
+   */
+  m.runNextScheduleTask=function(schedule,task){
+    var runTheTask=false;
+    var currentTime=moment().tz("europe/london").unix();
+
+    _.forEach(schedule.specificTimes,function(scheduleTask){
+
+
+      scheduleTask.timezone = scheduleTask.timezone || 'europe/london';
+      var scheduleTaskTime=moment.tz(scheduleTask.time,scheduleTask.timezone).unix();
+      if(!task[scheduleTaskTime] && currentTime >= scheduleTaskTime &&
+          // ensure we aren't too far past the scheduled task time.
+        ((currentTime - scheduleTaskTime) < (config.peekIntervalMS * 2)) // multiply peek by 2 incase of solar flares :)
+      ) {
+        runTheTask=true;
+        if(task[scheduleTaskTime]) runTheTask=false;
+        task[scheduleTaskTime] = true;
+      }
+    });
+
+    if(runTheTask){
+      return m.runTask(task)
+    }else{
+      return p.resolve();
+    }
   };
 
   m.runTask = function(task) {

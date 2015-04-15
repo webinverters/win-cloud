@@ -28,7 +28,13 @@ module.exports = function construct(config, queue, customLogger) {
 
   m.logError = function(eventLabel, info) {
     logger.logError({eventLabel: eventLabel, info: info}, eventLabel);
-    return m.log(eventLabel, info, "ERROR");
+    var msg = {
+      eventLabel: eventLabel,
+      type: 'ERROR',
+      host: os.hostname(),
+      details: info
+    };
+    return queue.sendMsg(msg);
   };
 
   m.log = function(eventLabel, info, type) {

@@ -47,11 +47,10 @@ module.exports = function construct(config, logger, taskQ) {
           return 'DONE';
         }
 
-        log('Queued Task Caught Error...');
         logError(err);
 
         taskDef = taskDef || {};
-        taskDef.err = err;
+        taskDef.err = _.isObject(err) ? JSON.stringify(err) : err;
 
         m.logger.logError("TASK_FAILED", taskDef);
 

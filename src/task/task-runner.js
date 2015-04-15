@@ -139,29 +139,19 @@ module.exports = function construct(config, logger) {
    * @returns {*} a promise.
    */
   m.runNextScheduleTask=function(schedule,task){
-    var runTheTask=false;
-    var currentTime=moment().tz("europe/london").unix();
+    var currentTime=moment().unix();
 
     _.forEach(schedule.specificTimes,function(scheduleTask){
-
-
-      scheduleTask.timezone = scheduleTask.timezone || 'europe/london';
+      scheduleTask.timezone = scheduleTask.timezone || 'UTC';
       var scheduleTaskTime=moment.tz(scheduleTask.time,scheduleTask.timezone).unix();
       if(!task[scheduleTaskTime] && currentTime >= scheduleTaskTime &&
           // ensure we aren't too far past the scheduled task time.
         ((currentTime - scheduleTaskTime) < (config.peekIntervalMS * 2)) // multiply peek by 2 incase of solar flares :)
       ) {
-        runTheTask=true;
-        if(task[scheduleTaskTime]) runTheTask=false;
         task[scheduleTaskTime] = true;
+        m.runTask(task);
       }
     });
-
-    if(runTheTask){
-      return m.runTask(task)
-    }else{
-      return p.resolve();
-    }
   };
 
   m.runTask = function(task) {

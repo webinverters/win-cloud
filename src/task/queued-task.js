@@ -50,20 +50,21 @@ module.exports = function construct(config, logger, taskQ) {
         logError(err);
 
         taskDef = taskDef || {};
-        taskDef.err = _.isObject(err) ? JSON.stringify(err) : err;
+        taskDef.err = err;
 
-        m.logger.logError("TASK_FAILED", taskDef);
-
-        if (err.message && err.message.toLowerCase().indexOf('please try again') >= 0) {
-          // intentionally do nothing so the task goes back on the queue and gets retried.
-        }
-        else {
-          return taskQ.createTask('poison',taskDef).then(function() {
-            // once it is added to the poison task queue, it should be deleted from
-            // its regular task queue so it doesnt clog the system.
-            return taskQ.completeTask(config.taskName, taskDef);
+        return m.logger.logError("TASK_FAILED", taskDef)
+          .then(function() {
+            if (err.message && err.message.toLowerCase().indexOf('please try again') >= 0) {
+              // intentionally do nothing so the task goes back on the queue and gets retried.
+            }
+            else {
+              return taskQ.createTask('poison',taskDef).then(function() {
+                // once it is added to the poison task queue, it should be deleted from
+                // its regular task queue so it doesnt clog the system.
+                return taskQ.completeTask(config.taskName, taskDef);
+              });
+            }
           });
-        }
       });
   };
 

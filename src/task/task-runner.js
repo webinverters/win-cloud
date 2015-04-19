@@ -146,7 +146,6 @@ module.exports = function construct(config, logger) {
       var scheduleTaskTime;
 
       if(scheduleTask.time){
-        console.log("here")
         scheduleTaskTime= m.getDate(scheduleTask.time,scheduleTask.timezone)
       }else{
         scheduleTaskTime=moment.tz(scheduleTask.dateTime,scheduleTask.timezone).unix();

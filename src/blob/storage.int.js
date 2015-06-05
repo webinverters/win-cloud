@@ -138,4 +138,18 @@ describe('storage.int.js', function() {
       });
     });
   });
+
+  describe('storage.save()', function() {
+    it('writes blob data to bucket...', function() {
+      var bucketName = 'testbucket123'+new Date().getUTCMilliseconds();
+      var s = Storage(bucketName);
+      return s.save(bucketName, 'testkey', {
+        awesome: 'rock on',
+        arr: [1,2,3]
+      })
+      .then(function(url) {
+        expect(url).to.equal('s3://'+bucketName+'/testkey');
+      })
+    });
+  });
 });

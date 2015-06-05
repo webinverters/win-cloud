@@ -19,16 +19,12 @@ module.exports = function construct(config, logger) {
     eventQueueName: 'default-event-queue'
   });
 
-
   m.Storage = require('./src/blob/storage');
-  m.EventLogger = require('./src/event/event-logger');
   //m.nosql = {};  // TODO: add a nosql provider.
   // m.notification = require('./src/notification/notification-svc')(config);  // TODO: implement email service.
   m.Queue = require('./src/queue/queue');
   m.TaskQueue = require('./src/task/task-queue');
   m.TaskRunner = require('./src/task/task-runner');
-
-  m.eventLogger = m.EventLogger(config.eventLog, m.Queue(config.eventQueueName), logger);
 
   if (config.useGlobals) {
     global.wincloud = _.extend({}, m);

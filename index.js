@@ -9,8 +9,6 @@
  * @license Apache-2.0
  */
 
-require('win-common')();
-
 module.exports = function construct(config, logger) {
   var m = {};
   config = config || {};

@@ -38,7 +38,7 @@ module.exports = function construct(config, logger, taskQ) {
         return config.doTask(tdef, taskQ);
       })
       .then(function(tresult) {
-        return taskQ.completeTask(config.taskName, tresult);
+        return taskQ.completeTask(config.taskName, taskDef);
       })
       .catch(function(err){
         if ((_.isObject(err) && err.message=='QUEUE_EMPTY') ||

@@ -29,21 +29,16 @@ module.exports = function construct(config, logger) {
   m.name = config.taskName;
 
   function runNext(state) {
-    return p.resolve().then(function() {
-      return p.resolve(config.action(state))
-        .then(function(result) {
-          if (config.loopUntilDone) {
-            if (result == 'DONE') {
-              return result;
-            }
-            return runNext(result);
+    return p.resolve(config.action(state))
+      .then(function(result) {
+        if (config.loopUntilDone) {
+          if (result == 'DONE') {
+            return result;
           }
-          return result;
-        });
-    })
-    .then(null, function(err) {
-      logger.logError('TASK_ERROR', {taskName: config.taskName, err: err});
-    });
+          return runNext(result);
+        }
+        return result;
+      });
   }
 
   m.run = function() {
@@ -55,6 +50,7 @@ module.exports = function construct(config, logger) {
     .then(null, function(err) {
       logger.logError('TASK_ERROR_UNEXPECTED', {taskName: config.taskName, err: err});
       m._isRunning = false;
+      throw err;
     });
   };
 

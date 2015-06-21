@@ -141,18 +141,26 @@ module.exports = function (bucketName, provider) {
 
   s.save = function(bucket, key, blob) {
     return s.ready().then(function () {
-      return provider.putObject({
-        Key: key,
-        Body: JSON.stringify(blob),
-        Bucket: bucket
-      }).then(function () {
+      return p.resolve().then(function() {
+        return JSON.stringify(blob);
+      })
+      .then(function(body) {
+        return provider.putObject({
+          Key: key,
+          Body: body,
+          Bucket: bucket
+        })
+      })
+      .then(function () {
         return 's3://'+bucket+'/'+key;
       })
       .catch(function(err) {
         // TODO: check if error is 4xx and if it is just let it bubble up
         // TODO: else if it is 5xx do an exponential backoff retry.
         console.log('Failed to save a file to S3.  Details below:');
+        console.log(blob);
         console.error(err);
+        throw err;
       });
     });
   };

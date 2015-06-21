@@ -142,7 +142,14 @@ module.exports = function (bucketName, provider) {
   s.save = function(bucket, key, blob) {
     return s.ready().then(function () {
       return p.resolve().then(function() {
-        return JSON.stringify(blob);
+        try {
+          return JSON.stringify(blob);
+        }
+        catch (ex) {
+          console.log('Failed to stringify body.');
+          console.error(ex);
+          throw ex;
+        }
       })
       .then(function(body) {
         return provider.putObject({

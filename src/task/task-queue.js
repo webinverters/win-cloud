@@ -39,7 +39,7 @@ module.exports = function(config, Queue, logger, idGenerator, taskQName) {
         });
   };
 
-  m.pullNextTask = function(taskName) {
+  function getQueue(taskName) {
     var taskQ;
     if (taskQName) {
       if (!m._taskQueues[taskQName]) {
@@ -53,6 +53,10 @@ module.exports = function(config, Queue, logger, idGenerator, taskQName) {
       m._taskQueues[taskName] = Queue(taskName+'-queue-'+config.env);
     }
     if (!taskQ) taskQ = m._taskQueues[taskName];
+    return taskQ;
+  }
+  m.pullNextTask = function(taskName) {
+    var taskQ = getQueue(taskName);
     debug('pulling from task queue:',taskName+'-queue-'+config.env);
 
     // TODO: add option and support for guaranteed FIFO, since SQS doesnt support FIFO.
@@ -69,10 +73,8 @@ module.exports = function(config, Queue, logger, idGenerator, taskQName) {
   };
 
   m.completeTask = function(taskName, taskDef) {
-    if(!m._taskQueues[taskName]) {
-      m._taskQueues[taskName] = Queue(taskName+'-queue-'+config.env);
-    }
-    return m._taskQueues[taskName].deleteMsg(taskDef.receiptHandle)
+    var taskQ = getQueue(taskName);
+    return taskQ.deleteMsg(taskDef.receiptHandle)
       .then(function() {
         m._logger.log('TASK_COMPLETED', {transactionId: taskDef.transactionId, taskId: taskDef.taskId});
         return true;

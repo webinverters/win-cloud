@@ -1,4 +1,4 @@
-module.exports = function(config, Queue, logger, idGenerator) {
+module.exports = function(config, Queue, logger, idGenerator, taskQName) {
   var m = {_taskQueues: {}};
 
   Queue = Queue || require('../queue/queue');
@@ -40,15 +40,23 @@ module.exports = function(config, Queue, logger, idGenerator) {
   };
 
   m.pullNextTask = function(taskName) {
-    if(!m._taskQueues[taskName]) {
+    var taskQ;
+    if (taskQName) {
+      if (!m._taskQueues[taskQName]) {
+        log('Initializing poison queue:',taskQName+'-queue-'+config.env);
+        m._taskQueues[taskQName] = Queue(taskQName+'-queue-'+config.env);
+      }
+      taskQ = m._taskQueues[taskQName];
+    }
+    else if(!m._taskQueues[taskName]) {
       log('Initializing task queue:',taskName+'-queue-'+config.env);
       m._taskQueues[taskName] = Queue(taskName+'-queue-'+config.env);
     }
+    if (!taskQ) taskQ = m._taskQueues[taskName];
     debug('pulling from task queue:',taskName+'-queue-'+config.env);
 
     // TODO: add option and support for guaranteed FIFO, since SQS doesnt support FIFO.
-
-    return m._taskQueues[taskName].receiveMsg().then(function(msgs) {
+    return taskQ.receiveMsg().then(function(msgs) {
       if (!msgs) {
         throw 'QUEUE_EMPTY';
       }

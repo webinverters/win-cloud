@@ -21,10 +21,10 @@ var Task = require('./task');
  * @param config Config.action must accept as its only param the task definition.
  * @param logger
  * @param taskQ
- * @param poisonQ
+ * @param isPoison {bool} If we are processing the poison Q.
  * @returns {*|m|exports}
  */
-module.exports = function construct(config, logger, taskQ) {
+module.exports = function construct(config, logger, taskQ, isPoison) {
   config = config || {};
   config.doTask = config.action;
   config.action = undefined;
@@ -56,6 +56,9 @@ module.exports = function construct(config, logger, taskQ) {
 
         if (err.message && err.message.toLowerCase().indexOf('please try again') >= 0) {
           // intentionally do nothing so the task goes back on the queue and gets retried.
+        }
+        else if (isPoison) {
+          // intentionally do nothing so the task goes back on the poison queue.
         }
         else {
           return taskQ.createTask('poison',taskDef).then(function() {

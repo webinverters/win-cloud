@@ -152,4 +152,15 @@ describe('storage.int.js', function() {
       })
     });
   });
+
+  describe('storage.getSignedUrl()', function() {
+    it('resolves a GET url to access a protected resource.', function() {
+      var s = Storage('wem-archive-dev');
+      return s.getSignedUrl({key: '2015-04-28T06:42:54.204Z-wem-111100409D719A5A-cc42ba50-ed71-11e4-bb5f-5beb75c4e2a7.xml'})
+        .then(function(url) {
+          console.log('URL=', url);
+          expect(url).to.be.defined;
+        });
+    });
+  });
 });

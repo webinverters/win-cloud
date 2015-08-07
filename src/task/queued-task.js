@@ -59,6 +59,12 @@ module.exports = function construct(config, logger, taskQ, isPoison) {
         }
         else if (isPoison) {
           // intentionally do nothing so the task goes back on the poison queue.
+          // TODO: add to S3 the poison ones...
+          var storage = Storage('poison-'+config.env);
+          return storage.writeString('')
+            .then(function() {
+              return taskQ.completeTask(config.taskName, taskDef);
+            });
         }
         else {
           return taskQ.createTask('poison',taskDef).then(function() {

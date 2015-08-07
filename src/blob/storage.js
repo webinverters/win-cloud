@@ -18,6 +18,7 @@ module.exports = function (bucketName, provider) {
   provider.putObject = p.promisify(provider.putObject);
   provider.listBuckets = p.promisify(provider.listBuckets);
   provider.deleteObjects = p.promisify(provider.deleteObjects);
+  provider.getSignedUrl = p.promisify(provider.getSignedUrl);
   //provider.getObject = p.promisify(provider.getObject);
 
   s.destroy = function () {
@@ -190,6 +191,18 @@ module.exports = function (bucketName, provider) {
         };
       });
     });
+  };
+
+  s.getSignedUrl = function(params) {
+    // TODO: return signed URL
+    //var params = {Bucket: 'bucket', Key: 'key', };
+    var s3Params = {
+      Key: params.key
+    };
+    if (params.bucket) s3Params.Bucket = params.bucket;
+    if (params.expiryInSecs) s3Params.Expires = params.expiryInSecs;
+
+    return provider.getSignedUrl('getObject', s3Params);
   };
 
   function listAllObjects(prefix, marker, maxCount) {

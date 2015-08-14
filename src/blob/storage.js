@@ -210,7 +210,7 @@ module.exports = function (bucketName, provider) {
     maxCount = maxCount || 100000;
 
     function listAllKeys(marker, prefix) {
-      provider.listObjects({Prefix: prefix, Marker: marker}, function (err, data) {
+      provider.listObjects({Prefix: prefix, Marker: marker, MaxKeys: maxCount}, function (err, data) {
         if (err) {
           deferred.reject(err);
           return;

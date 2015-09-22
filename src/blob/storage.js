@@ -6,19 +6,22 @@ var
     StringStream = require('string-stream'),
     batcher = require('win-common')().batcher;
 
-module.exports = function (bucketName, provider) {
-  var s = {};
+module.exports = function (bucketName, provider,promisify) {
+  var s = new (function StorageService(){})();
   provider = provider || new AWS.S3({params: {Bucket: bucketName}});
 
   // technically there is a way to promisfy all in one go, but as can be seen here
   // we do not want all the methods promisified...  (getObject for one...)
   // http://stackoverflow.com/questions/26475486/how-do-i-promisify-the-aws-javascript-sdk
-  provider.deleteBucket = p.promisify(provider.deleteBucket);
-  provider.createBucket = p.promisify(provider.createBucket);
-  provider.putObject = p.promisify(provider.putObject);
-  provider.listBuckets = p.promisify(provider.listBuckets);
-  provider.deleteObjects = p.promisify(provider.deleteObjects);
-  provider.getSignedUrl = p.promisify(provider.getSignedUrl);
+  if(!promisify) {
+    provider.deleteBucket = p.promisify(provider.deleteBucket);
+    provider.createBucket = p.promisify(provider.createBucket);
+    provider.putObject = p.promisify(provider.putObject);
+    provider.listBuckets = p.promisify(provider.listBuckets);
+    provider.deleteObjects = p.promisify(provider.deleteObjects);
+    provider.getSignedUrl = p.promisify(provider.getSignedUrl);
+  }
+
   //provider.getObject = p.promisify(provider.getObject);
 
   s.destroy = function () {
@@ -205,6 +208,29 @@ module.exports = function (bucketName, provider) {
     return provider.getSignedUrl('getObject', s3Params);
   };
 
+  var partitionKeyCandidates = 'abcdefghijklmnopqrstuvwxyz0123456789'
+  var getRandomInt = function() {
+    return Math.round(Math.random()*100)
+  }
+
+  var getPartitionKey = function(partitionKeySize) {
+    var partitionKey = ''
+    for(var i =0; i<partitionKeySize; i++) {
+      partitionKey += partitionKeyCandidates[getRandomInt()%partitionKeyCandidates.length]
+    }
+    return partitionKey
+  }
+
+  s.generateKey = function(params) {
+    params = params || {partitionKeySize: 0}
+    params.partitionKeySize = params.partitionKeySize || 0
+
+    var partitionKey = getPartitionKey(params.partitionKeySize)
+    var key = ''
+    if (partitionKey) key = partitionKey
+    return path.join(key,params.path||'')
+  }
+
   function listAllObjects(prefix, marker, maxCount) {
     var allKeys = [], deferred = p.defer();
     maxCount = maxCount || 100000;
@@ -229,6 +255,3 @@ module.exports = function (bucketName, provider) {
 
   return s;
 };
-
-
-

@@ -25,7 +25,7 @@ module.exports = function (bucketName, provider,promisify) {
   //provider.getObject = p.promisify(provider.getObject);
 
   s.destroy = function () {
-    s.emptyBucket().then(function (test) {
+    return s.emptyBucket().then(function () {
       return provider.deleteBucket().then(function () {
         s._bucketName = null;
       });

@@ -48,7 +48,8 @@ module.exports = function construct(config, logger) {
       m._isRunning = false;
     })
     .then(null, function(err) {
-      logger.logError('TASK_ERROR_UNEXPECTED', {taskName: config.taskName, err: err});
+      logger.log('TaskName:',{taskName: config.taskName)
+      logger.error('TASK_ERROR_UNEXPECTED', err);
       m._isRunning = false;
       throw err;
     });

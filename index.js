@@ -19,7 +19,7 @@ module.exports = function construct(config, logger) {
     eventQueueName: 'default-event-queue'
   });
 
-  m.Storage = require('./src/blob/storage');
+  m.Storage = require('./src/blob/storage')(config,logger);
   //m.nosql = {};  // TODO: add a nosql provider.
   // m.notification = require('./src/notification/notification-svc')(config);  // TODO: implement email service.
   m.Queue = require('./src/queue/queue');

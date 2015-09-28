@@ -1,5 +1,5 @@
 var StringStream = require('string-stream');
-var Storage = require('./storage');
+var Storage = require('./storage')({},global.log);
 
 var ext = Math.floor(Math.random() * 999999);
 var testBucket = 'storage-test'+ext;

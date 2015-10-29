@@ -38,7 +38,9 @@ module.exports = function(config,log) {
         return s.list()
       })
       .then(function (allObjects) {
-        log('Deleting:', allObjects.length, 'objects from bucket:', bucketName);
+        log('Deleting:', {
+          objectCount: allObjects.length,
+          bucketName: bucketName});
         return p.all(batcher.chunk(allObjects, 1000, function (chunk) {
               return provider.deleteObjects({
                 Delete: {

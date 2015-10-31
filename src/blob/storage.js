@@ -102,6 +102,7 @@ module.exports = function(config,log) {
     };
 
     s.readString = function (key) {
+      console.log('readString()', {key:key})
       return s.read(key).then(function (fileStream) {
         var deferred = p.defer();
         var ss = new StringStream('');

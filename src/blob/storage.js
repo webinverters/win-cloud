@@ -110,7 +110,7 @@ module.exports = function(config,log) {
           deferred.resolve(ss.toString());
         });
         fileStream.on('error', function (err) {
-          deferred.resolve(err);
+          deferred.reject(err);
         });
         return deferred.promise;
       });

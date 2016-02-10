@@ -71,6 +71,20 @@ module.exports = function(config,log) {
       }
     };
 
+    s.delete = function (params) {
+      log('Deleting S3 Objects:', {params: params})
+      if (params.keys) {
+        return provider.deleteObjects({
+          Delete: {
+            Objects: _.map(params.keys, function (key) {
+              return {Key: key}
+            })
+          }
+        })
+      }
+      else throw "Invalid arguments.  Requires keys to be an array of keys."
+    }
+
     s.write = function (params) {
       return s.ready().then(function () {
         var key = params.key || s.genKey(params.suffix);
